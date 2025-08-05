@@ -1,8 +1,8 @@
 import streamlit as st
-from result_analysis_product.SE import *
-from result_analysis_product.TE import *
-from result_analysis_product.BE import *
-from result_analysis_product.config import *
+from SE import *
+from TE import *
+from BE import *
+from config import *
 import pandas as pd
 import matplotlib.pyplot as plt
 import docx2txt
@@ -17,82 +17,25 @@ from openpyxl.styles import Alignment, Font
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
 from io import BytesIO
-from parsers.be_parser import parse_pdf as parse_be_pdf
-from parsers.se_parser import parse_pdf as parse_se_pdf
-from parsers.te_parser import parse_pdf as parse_te_pdf
-# Set page config first
-st.set_page_config(page_title="Result Analysis Product", layout="wide")
 
 st.title("🤖 RESULT ANALYSIS PRODUCT 💻")
 
-# Add a new PDF conversion tab first
-pdf_conversion, analysis_result, analysis_root_cause, naac_tab = st.tabs(
-    ["PDF Conversion", "Result Analysis", "Root Cause Analysis", "NAAC Application"]
-)
+analysis_result, analysis_root_cause, naac_tab = st.tabs(["Result Analysis", "Root Cause Analysis", "NAAC Application"])
 
-# PDF Conversion Tab
-with pdf_conversion:
-    st.title("📄 PDF to Excel Converter")
-    st.markdown("Convert university marksheet PDFs to Excel format for analysis")
-    
-    year = st.selectbox("Select Academic Year", ["SE", "TE", "BE"], key="conversion_year")
-    uploaded_pdf = st.file_uploader("Upload PDF Marksheet", type=["pdf"], key="pdf_uploader")
-    
-    if uploaded_pdf:
-        if st.button("Convert PDF"):
-            with st.spinner(f"Converting {year} PDF..."):
-                try:
-                    # Save uploaded file temporarily
-                    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_pdf:
-                        tmp_pdf.write(uploaded_pdf.getvalue())
-                        tmp_pdf_path = tmp_pdf.name
-                    
-                    # Call appropriate parser
-                    if year == "BE":
-                        csv_path, num_students = parse_be_pdf(tmp_pdf_path)
-                    elif year == "TE":
-                        csv_path, num_students = parse_te_pdf(tmp_pdf_path)
-                    else:  # SE
-                        csv_path, num_students = parse_se_pdf(tmp_pdf_path)
-                    
-                    # Convert to Excel
-                    df = pd.read_csv(csv_path)
-                    excel_buffer = BytesIO()
-                    df.to_excel(excel_buffer, index=False)
-                    excel_buffer.seek(0)
-                    
-                    st.success(f"Converted {num_students} student records!")
-                    st.download_button(
-                        label="Download Excel",
-                        data=excel_buffer,
-                        file_name=f"{year}_Results.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-                    
-                except Exception as e:
-                    st.error(f"Conversion failed: {str(e)}")
-                finally:
-                    # Clean up temporary files
-                    if 'tmp_pdf_path' in locals() and os.path.exists(tmp_pdf_path):
-                        os.unlink(tmp_pdf_path)
-                    if 'csv_path' in locals() and os.path.exists(csv_path):
-                        os.unlink(csv_path)
-
-# Rest of your existing tabs (unchanged)
-with analysis_result:
+with(analysis_result):
     st.title("Result Analysis")
     st.header("1. Upload Files")
 
-    file1 = st.file_uploader("Current year Excel File", type=["xlsx", "xls"], key="1")
-    file2 = st.file_uploader("Previous year Excel File", type=["xlsx", "xls"], key="2")
+    file1 = st.file_uploader("Curent year Excel File", type=["xlsx", "xls"], key = "1")
+    file2 = st.file_uploader("Previous year Excel File", type=["xlsx", "xls"], key = "2")
 
-    year = st.selectbox("Select year", ["SE", "TE", "BE"], key="analysis_year")
-    semester = st.selectbox("Select semester", ["I", "II"], key="semester")
+    year = st.selectbox("select year", ["SE", "TE", "BE"])
+    semester = st.selectbox("select semester", ["I", "II"])
 
     if file1 and file2:
         if st.button("Process File"):
-            if year == 'SE':
-                if semester == "I":
+            if(year == 'SE'):
+                if(semester == "I"):
                     sub = getConfig("SEM-III")
                 else:
                     sub = getConfig("SEM-IV")
@@ -107,8 +50,8 @@ with analysis_result:
                     file_name="Result_Analysis.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
-            elif year == "TE":
-                if semester == "I":
+            elif(year == "TE"):
+                if(semester == "I"):
                     sub = getConfig("SEM-V")
                 else:
                     sub = getConfig("SEM-VI")
@@ -124,7 +67,7 @@ with analysis_result:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
             else:
-                if semester == "I":
+                if(semester == "I"):
                     sub = getConfig("SEM-VII")
                 else:
                     sub = getConfig("SEM-VIII")
