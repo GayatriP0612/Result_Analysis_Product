@@ -1,8 +1,8 @@
 import streamlit as st
-from SE import *
-from TE import *
-from BE import *
-from config import *
+from result_analysis_product.SE import *
+from result_analysis_product.TE import *
+from result_analysis_product.BE import *
+from result_analysis_product.config import *
 import pandas as pd
 import matplotlib.pyplot as plt
 import docx2txt
@@ -20,7 +20,6 @@ from io import BytesIO
 from parsers.be_parser import parse_pdf as parse_be_pdf
 from parsers.se_parser import parse_pdf as parse_se_pdf
 from parsers.te_parser import parse_pdf as parse_te_pdf
-
 # Set page config first
 st.set_page_config(page_title="Result Analysis Product", layout="wide")
 
